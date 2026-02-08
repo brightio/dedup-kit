@@ -1,5 +1,5 @@
 [project]
-name = "dedup-kit"
+name = "dedup-kit-ng"
 version = "0.8.1"
 description = "Duplicate file finder"
 readme = "README.md"
