@@ -620,9 +620,9 @@ class DupFinder:
 			for item in self.items: # TEMP
 				item = os.path.abspath(item)
 				if os.path.isdir(item):
-					self.exclude_directories_regex.append(re.compile(re.escape(item)))
+					self.exclude_directories_regex.append(re.compile(r"^" + re.escape(item) + r"(?:/|$)"))
 				else:
-					self.exclude_files_regex.append(re.compile(re.escape(item)))
+					self.exclude_files_regex.append(re.compile(r"^" + re.escape(item) + r"$"))
 			total_source_files = self._total_files
 
 			target_files = self.group_by_size(self.targets)
