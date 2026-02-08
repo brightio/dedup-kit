@@ -14,14 +14,12 @@ or\
 ## Modes
 ### ➤ Normal mode
 It detects duplicate files in the given directories and/or files.
-<br/><br/>
-![Screenshot from 2024-01-08 20-48-11](https://github.com/brightio/dedup/assets/65655412/c7c9da15-fdf3-48ef-a3ac-22fb2308cdf8)
-<br/><br/>
+![normal](https://github.com/user-attachments/assets/42b8dd6a-9617-4464-b37b-e258a60125ca)
+
 ### ➤ Target mode
 It detects if the given directories and/or files exist in the target directories and/or files which can be specified with -t.
-<br/><br/>
-![Screenshot from 2024-01-08 20-48-21](https://github.com/brightio/dedup/assets/65655412/6f9514fe-8516-44e2-a8be-9fd428064c5f)
-<br/><br/>
+![target](https://github.com/user-attachments/assets/38528d36-505b-458f-8654-610f113afcbe)
+
 ## File treatment
 * Empty files are excluded.
 * Symbolic links are not followed.
