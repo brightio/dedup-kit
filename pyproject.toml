@@ -1,0 +1,17 @@
+[project]
+name = "dedup-kit"
+version = "0.8.1"
+description = "Duplicate file finder"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.6"
+
+[project.scripts]
+dedup-kit = "dedup_kit:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["dedup_kit"]
