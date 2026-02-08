@@ -515,8 +515,8 @@ class DupFinder:
 			targets=(),
 			min_size="1",
 			max_size="9Y",
-			exclude_files=(),
-			exclude_directories=(),
+			exclude_files_regex=(),
+			exclude_directories_regex=(),
 			include_hidden_files=False,
 			include_hidden_directories=False,
 			sort_size=False
@@ -538,11 +538,8 @@ class DupFinder:
 		self.include_hidden_files = include_hidden_files
 		self.include_hidden_directories = include_hidden_directories
 
-		self.exclude_files = exclude_files
-		self.exclude_files_patterns = [re.compile(pattern) for pattern in self.exclude_files]
-
-		self.exclude_directories = exclude_directories
-		self.exclude_directories_patterns = [re.compile(pattern) for pattern in self.exclude_directories]
+		self.exclude_files_regex = exclude_files_regex
+		self.exclude_directories_regex = exclude_directories_regex
 
 		self.specific_sizes = None
 
@@ -587,7 +584,7 @@ class DupFinder:
 
 	def allow_directory(self, dirpath):
 		return not any([
-			any(pattern.search(dirpath) for pattern in self.exclude_directories_patterns),
+			any(pattern.search(dirpath) for pattern in self.exclude_directories_regex),
 			not self.include_hidden_directories and is_hidden(dirpath)
 		])
 
@@ -599,7 +596,7 @@ class DupFinder:
 			return
 
 		reasons_to_exclude = [
-			any(pattern.search(filepath) for pattern in self.exclude_files_patterns),
+			any(pattern.search(filepath) for pattern in self.exclude_files_regex),
 			self.specific_sizes and (file.size not in self.specific_sizes),
 			not self.min_size <= file.size <= self.max_size,
 			os.path.islink(filepath),
@@ -623,9 +620,9 @@ class DupFinder:
 			for item in self.items: # TEMP
 				item = os.path.abspath(item)
 				if os.path.isdir(item):
-					self.exclude_directories_patterns.append(re.compile(item))
+					self.exclude_directories_regex.append(re.compile(re.escape(item)))
 				else:
-					self.exclude_files_patterns.append(re.compile(item))
+					self.exclude_files_regex.append(re.compile(re.escape(item)))
 			total_source_files = self._total_files
 
 			target_files = self.group_by_size(self.targets)
@@ -684,6 +681,13 @@ logger = logging.getLogger(__name__)
 logger.addHandler(stdout_handler)
 logger.setLevel(logging.INFO)
 
+def regex_type(p):
+	try:
+		return re.compile(p)
+	except re.error as e:
+		logger.error(f"Invalid regex {p!r}: {e}")
+		sys.exit(2)
+
 def main():
 	stop.clear()
 	def ControlC(num, stack):
@@ -705,8 +709,8 @@ def main():
 	parser.add_argument("-V", "--verbose", help="Show files while they are being read", action="store_true")
 
 	# Filtering
-	parser.add_argument("-xf", "--exclude-files", help="Files to exclude (regex)", action="append", default=[])
-	parser.add_argument("-xd", "--exclude-directories", help="Directories to exclude (regex)", action="append", default=[])
+	parser.add_argument("-xf", "--exclude-files", help="Files to exclude (regex)", action="append", type=regex_type, default=[])
+	parser.add_argument("-xd", "--exclude-directories", help="Directories to exclude (regex)", action="append", type=regex_type, default=[])
 	parser.add_argument("-min", "--min-size", help="Ommit files smaller than SIZE (Bytes).", type=str, default='1', action="store")
 	parser.add_argument("-max", "--max-size", help="Ommit files larger than SIZE (Bytes).", type=str, default='9Y', action="store")
 	parser.add_argument("-a",  "--include-hidden", help="Include hidden files and directories (Default: No)", action="store_true")
@@ -746,8 +750,8 @@ def main():
 		max_size=args.max_size,
 		include_hidden_files=args.include_hidden_files,
 		include_hidden_directories=args.include_hidden_directories,
-		exclude_files=args.exclude_files,
-		exclude_directories=args.exclude_directories,
+		exclude_files_regex=args.exclude_files,
+		exclude_directories_regex=args.exclude_directories,
 		sort_size=args.sort_size
 	).get_dupes()
 
